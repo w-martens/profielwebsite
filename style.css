@@ -441,6 +441,10 @@
         border: none;
         background: none;
         color: var(--color-initiaal);
+        font-family:
+            "Noto Sans Symbols 2",
+            "Segoe UI Symbol",
+            sans-serif;
         font-size: 1.8rem;
         line-height: 1;
         cursor: pointer;
