@@ -288,6 +288,18 @@
             transform: translateY(-10px) rotate(0deg);
         }
     }
+
+    /* Phones: the vw-based clamp() alone stays too small on narrow screens,
+       so bump the effective size up specifically for small viewports. */
+    @media (max-width: 600px) {
+        .naam {
+            font-size: clamp(2.2rem, 11vw, 3rem);
+        }
+
+        .initiaal {
+            font-size: clamp(3rem, 22vw, 6rem);
+        }
+    }
 }
 
 @layer nav-buttons {
@@ -298,7 +310,7 @@
         flex-direction: column;
         align-items: flex-start;
         align-self: flex-start;
-        margin-left: 37%;
+        margin-left: 37%; /* fallback until JS aligns it exactly under the "W" */
         gap: clamp(0.4rem, 1.5vw, 0.9rem);
         padding: 0 1rem;
     }
@@ -319,8 +331,14 @@
 
     .nav-button img {
         display: block;
-        height: clamp(1.1rem, 3.5vw, 2.5rem);
+        height: clamp(1.6rem, 5vw, 3.5rem);
         width: auto;
+    }
+
+    @media (max-width: 600px) {
+        .nav-button img {
+            height: clamp(2.5rem, 11vw, 4rem);
+        }
     }
 
     .nav-button.shattering img {

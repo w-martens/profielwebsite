@@ -17,7 +17,7 @@
         <div class="notes-container" id="notesContainer"></div>
         <div class="trail-container" id="trailContainer"></div>
         <div class="color-picker">
-            <button type="button" class="dice-button" id="diceButton" title="Randomize colors">⚀</button>
+            <button type="button" class="dice-button" id="diceButton" title="Randomize colors">⚀︎</button>
             <input type="color" id="colorNaam" value="#333333" title="Naam kleur" />
             <input type="color" id="colorInitiaal" value="#94422a" title="Initialen kleur" />
             <input type="color" id="colorBg" value="#ffdab9" title="Achtergrond kleur" />
@@ -196,7 +196,16 @@
     });
 
     // Dice button: rolls through dice faces, then randomizes the 3 colors
-    const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    // (the trailing \uFE0E forces plain text presentation instead of a
+    // colorful emoji rendering on platforms like Android)
+    const DICE_FACES = [
+        "⚀\ufe0e",
+        "⚁\ufe0e",
+        "⚂\ufe0e",
+        "⚃\ufe0e",
+        "⚄\ufe0e",
+        "⚅\ufe0e",
+    ];
     const diceButton = document.getElementById("diceButton");
     let diceRolling = false;
 
@@ -377,5 +386,29 @@
 
     navButtons.forEach((button) => {
         button.addEventListener("click", () => shatterButton(button));
+    });
+
+    // Align the button stack so its left edge sits exactly under the "W"
+    // of the name, on any screen size.
+    const navButtonsContainer = document.querySelector(".nav-buttons");
+    const firstNaamDeel = document.querySelector(".naam-wrapper .naam-deel");
+
+    function alignNavButtonsWithName() {
+        if (!navButtonsContainer || !firstNaamDeel) return;
+        const rect = firstNaamDeel.getBoundingClientRect();
+        navButtonsContainer.style.marginLeft = rect.left + "px";
+    }
+
+    alignNavButtonsWithName();
+    window.addEventListener("load", alignNavButtonsWithName);
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(alignNavButtonsWithName);
+    }
+
+    let alignResizeTimer = null;
+    window.addEventListener("resize", () => {
+        clearTimeout(alignResizeTimer);
+        alignResizeTimer = setTimeout(alignNavButtonsWithName, 120);
     });
 </script>
