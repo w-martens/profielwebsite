@@ -437,17 +437,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 2rem;
+        height: 2rem;
         padding: 0;
         border: none;
         background: none;
         color: var(--color-initiaal);
+        cursor: pointer;
+    }
+
+    .dice-face {
+        display: inline-block;
         font-family:
             "Noto Sans Symbols 2",
             "Segoe UI Symbol",
             sans-serif;
         font-size: 1.8rem;
         line-height: 1;
-        cursor: pointer;
+        /* Symbol fonts often aren't vertically centered within their own
+           em-box; nudge the glyph down slightly to visually match the
+           center of the color swatches next to it. */
+        transform: translateY(0.08em);
     }
 
     .dice-button:disabled {

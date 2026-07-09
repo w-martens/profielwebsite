@@ -17,7 +17,9 @@
         <div class="notes-container" id="notesContainer"></div>
         <div class="trail-container" id="trailContainer"></div>
         <div class="color-picker">
-            <button type="button" class="dice-button" id="diceButton" title="Randomize colors">⚀︎</button>
+            <button type="button" class="dice-button" id="diceButton" title="Randomize colors">
+                <span class="dice-face" id="diceFace">⚀︎</span>
+            </button>
             <input type="color" id="colorNaam" value="#333333" title="Naam kleur" />
             <input type="color" id="colorInitiaal" value="#94422a" title="Initialen kleur" />
             <input type="color" id="colorBg" value="#ffdab9" title="Achtergrond kleur" />
@@ -207,6 +209,7 @@
         "⚅\ufe0e",
     ];
     const diceButton = document.getElementById("diceButton");
+    const diceFace = document.getElementById("diceFace");
     let diceRolling = false;
 
     function randomColor() {
@@ -239,7 +242,7 @@
         let delay = 30;
 
         function rollStep() {
-            diceButton.textContent = DICE_FACES[Math.floor(Math.random() * DICE_FACES.length)];
+            diceFace.textContent = DICE_FACES[Math.floor(Math.random() * DICE_FACES.length)];
 
             const elapsed = performance.now() - start;
             if (elapsed >= totalDuration) {
