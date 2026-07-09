@@ -1,0 +1,435 @@
+/* style.css */
+
+@layer reset {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+}
+
+@layer fonts {
+    @font-face {
+        font-family: "Kunstler Script";
+        src: url("fonts/KUNSTLER.TTF") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: "Parchment";
+        src: url("fonts/PARCHM.TTF") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+    }
+}
+
+@property --color-naam {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #333333;
+}
+
+@property --color-initiaal {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #94422a;
+}
+
+@property --color-bg {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #ffdab9;
+}
+
+:root {
+    --color-naam: #333333;
+    --color-initiaal: #94422a;
+    --color-bg: #ffdab9;
+}
+
+:root.color-transition {
+    transition:
+        --color-naam 0.8s ease,
+        --color-initiaal 0.8s ease,
+        --color-bg 0.8s ease;
+}
+
+@layer base {
+    body {
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: clamp(0.5rem, 3vw, 1.5rem);
+        overflow: hidden;
+        position: relative;
+    }
+}
+
+@property --gradient-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 135deg;
+}
+
+@layer background-motion {
+    .bg-blobs {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image:
+            radial-gradient(circle at 20% 30%, var(--color-bg) 0%, transparent 45%),
+            radial-gradient(circle at 80% 70%, white 0%, transparent 22%),
+            linear-gradient(var(--gradient-angle), var(--color-bg), white);
+        background-size:
+            160% 160%,
+            160% 160%,
+            100% 100%;
+        background-repeat: no-repeat;
+        filter: blur(3px);
+        animation:
+            blob-drift 30s ease-in-out infinite,
+            gradient-rotate 120s linear infinite;
+    }
+
+    @keyframes gradient-rotate {
+        from {
+            --gradient-angle: 0deg;
+        }
+        to {
+            --gradient-angle: 360deg;
+        }
+    }
+
+    @keyframes blob-drift {
+        0% {
+            background-position:
+                20% 30%,
+                80% 70%,
+                0% 0%;
+        }
+        20% {
+            background-position:
+                35% 55%,
+                65% 40%,
+                0% 0%;
+        }
+        40% {
+            background-position:
+                60% 25%,
+                40% 75%,
+                0% 0%;
+        }
+        60% {
+            background-position:
+                75% 60%,
+                25% 35%,
+                0% 0%;
+        }
+        80% {
+            background-position:
+                45% 75%,
+                55% 55%,
+                0% 0%;
+        }
+        100% {
+            background-position:
+                20% 30%,
+                80% 70%,
+                0% 0%;
+        }
+    }
+}
+
+@layer notes {
+    .notes-container {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .note-fall {
+        position: absolute;
+        top: 0;
+        left: 0;
+        animation: note-fall-down linear forwards;
+    }
+
+    .note-flip {
+        display: inline-block;
+        font-family: "Noto Music", "Segoe UI Symbol", sans-serif;
+        color: var(--color-initiaal);
+        animation: note-flip-horizontal ease-in-out infinite;
+    }
+
+    @keyframes note-fall-down {
+        0% {
+            transform: translateY(-10vh) translateX(0);
+            opacity: var(--start-opacity, 0.3);
+        }
+        75% {
+            opacity: var(--start-opacity, 0.3);
+        }
+        100% {
+            transform: translateY(var(--fall-distance, 105vh)) translateX(var(--drift, 0px));
+            opacity: 0;
+        }
+    }
+
+    @keyframes note-flip-horizontal {
+        0% {
+            transform: scaleX(1);
+        }
+        50% {
+            transform: scaleX(-1);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+
+    .trail-container {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    .trail-note {
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-family: "Noto Music", "Segoe UI Symbol", sans-serif;
+        color: var(--color-initiaal);
+        will-change: transform, opacity;
+        animation: trail-fall-fade ease-out forwards;
+    }
+
+    @keyframes trail-fall-fade {
+        0% {
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 30px)))
+                scale(0.5) rotate(var(--rot, 20deg));
+        }
+    }
+}
+
+@layer name {
+    .naam-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .naam-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: baseline;
+        row-gap: 1rem;
+        column-gap: clamp(0.5rem, 3vw, 2rem);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        caret-color: transparent;
+    }
+
+    /* Each name segment holds its own initial + word pair, so the
+       cursive initial always lines up with the start of that exact word,
+       at any screen size. */
+    .naam-deel {
+        position: relative;
+        display: inline-block;
+        line-height: 1;
+        animation: float 3s ease-in-out infinite alternate;
+    }
+
+    .initiaal {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Kunstler Script", cursive;
+        font-size: clamp(1.5rem, 16vw, 7rem);
+        color: var(--color-initiaal);
+        opacity: 0.4;
+        z-index: 1;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    .naam {
+        position: relative;
+        z-index: 2;
+        display: inline-block;
+        font-family: "Parchment", serif;
+        font-size: clamp(1.5rem, 7vw, 4rem);
+        color: var(--color-naam);
+        white-space: nowrap;
+    }
+
+    @keyframes float {
+        from {
+            transform: translateY(0) rotate(0deg);
+        }
+        to {
+            transform: translateY(-10px) rotate(0deg);
+        }
+    }
+}
+
+@layer nav-buttons {
+    .nav-buttons {
+        position: relative;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        align-self: flex-start;
+        margin-left: 37%;
+        gap: clamp(0.4rem, 1.5vw, 0.9rem);
+        padding: 0 1rem;
+    }
+
+    .nav-button {
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 0;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .nav-button:hover,
+    .nav-button:focus-visible {
+        transform: scale(1.06);
+    }
+
+    .nav-button img {
+        display: block;
+        height: clamp(1.1rem, 3.5vw, 2.5rem);
+        width: auto;
+    }
+
+    .nav-button.shattering img {
+        opacity: 0;
+    }
+
+    .shatter-container {
+        position: fixed;
+        pointer-events: none;
+        z-index: 1001;
+    }
+
+    .shatter-piece {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-repeat: no-repeat;
+        animation: shatter-fly forwards;
+    }
+
+    @keyframes shatter-fly {
+        0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            opacity: 1;
+            animation-timing-function: ease-in-out;
+        }
+        20% {
+            /* Slow crack: shards separate just a little before gravity takes over */
+            transform: translate(calc(var(--tx, 0px) * 0.06), calc(var(--ty, 0px) * 0.01))
+                rotate(calc(var(--rot, 0deg) * 0.12)) scale(1);
+            opacity: 1;
+            animation-timing-function: ease-in;
+        }
+        100% {
+            transform: translate(var(--tx, 0px), var(--ty, 80px)) rotate(var(--rot, 0deg)) scale(0.4);
+            opacity: 0;
+        }
+    }
+}
+
+@layer profile {
+    .profile-pic {
+        width: 300px;
+        height: 300px;
+        border-radius: 2%;
+        border: 5px solid #4a90e2;
+        object-fit: cover;
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
+    }
+
+    .profile-pic:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+@layer color-picker {
+    .color-picker {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .color-picker input[type="color"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        padding: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .color-picker input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    .color-picker input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+
+    .color-picker input[type="color"]::-moz-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+
+    .dice-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: none;
+        background: none;
+        color: var(--color-initiaal);
+        font-size: 1.8rem;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .dice-button:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}

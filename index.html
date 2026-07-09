@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="nl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>W.A. Martens Klankontwerp en Muziekcompositie</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="bg-blobs"></div>
+        <div class="notes-container" id="notesContainer"></div>
+        <div class="trail-container" id="trailContainer"></div>
+        <div class="color-picker">
+            <button type="button" class="dice-button" id="diceButton" title="Randomize colors">⚀</button>
+            <input type="color" id="colorNaam" value="#333333" title="Naam kleur" />
+            <input type="color" id="colorInitiaal" value="#94422a" title="Initialen kleur" />
+            <input type="color" id="colorBg" value="#ffdab9" title="Achtergrond kleur" />
+        </div>
+        <div class="naam-container">
+            <div class="naam-wrapper">
+                <div class="naam-deel">
+                    <span class="initiaal">W</span>
+                    <span class="naam">Wouter</span>
+                </div>
+                <div class="naam-deel">
+                    <span class="initiaal">A</span>
+                    <span class="naam">Adriaan</span>
+                </div>
+                <div class="naam-deel">
+                    <span class="initiaal">M</span>
+                    <span class="naam">Martens</span>
+                </div>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <button type="button" class="nav-button" aria-label="Over mij">
+                <img src="img/over mij.png" alt="Over mij" />
+            </button>
+            <button type="button" class="nav-button" aria-label="Commercieel werk">
+                <img src="img/commercieel werk.png" alt="Commercieel werk" />
+            </button>
+            <button type="button" class="nav-button" aria-label="Eigen werk">
+                <img src="img/eigen werk.png" alt="Eigen werk" />
+            </button>
+            <button type="button" class="nav-button" aria-label="Contact">
+                <img src="img/contact.png" alt="Contact" />
+            </button>
+        </div>
+    </body>
+</html>
+<script>
+    const img = document.querySelector(".profile-pic");
+    if (img) {
+        img.addEventListener("click", () => {
+            img.style.transform = "scale(1.3) translateY(-10px)";
+            setTimeout(() => {
+                img.style.transform = "";
+            }, 300);
+        });
+    }
+
+    // Falling music notes
+    const NOTE_CHARS = [
+        "𝄠",
+        "𝄞",
+        "𝄢",
+        "𝄣",
+        "𝄤",
+        "𝄋",
+        "𝄌",
+        "𝅝",
+        "𝅗𝅥",
+        "𝅘𝅥",
+        "𝅘𝅥𝅮",
+        "𝅘𝅥𝅯",
+        "𝆙",
+    ];
+
+    const notesContainer = document.getElementById("notesContainer");
+
+    function spawnNote() {
+        const fall = document.createElement("div");
+        fall.className = "note-fall";
+
+        const flip = document.createElement("span");
+        flip.className = "note-flip";
+        flip.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
+
+        const fallDuration = 8 + Math.random() * 10; // 8s - 18s
+        const flipDuration = 1 + Math.random() * 3; // 1s - 4s
+        const size = 0.8 + Math.random() * 2.2; // 1.2rem - 3.4rem
+        const left = Math.random() * 100; // vw
+        const drift = (Math.random() * 2 - 1) * 60; // px sideways drift
+        const fallDistance = 100 + Math.random() * 20; // vh - ends at/just past the bottom edge, with variance
+        const startOpacity = 0.1 + Math.random() * 0.2;
+
+        fall.style.left = left + "vw";
+        fall.style.setProperty("--drift", drift + "px");
+        fall.style.setProperty("--fall-distance", fallDistance + "vh");
+        fall.style.setProperty("--start-opacity", startOpacity);
+        fall.style.animationDuration = fallDuration + "s";
+
+        flip.style.fontSize = size + "rem";
+        flip.style.animationDuration = flipDuration + "s";
+
+        fall.appendChild(flip);
+        notesContainer.appendChild(fall);
+
+        fall.addEventListener("animationend", (e) => {
+            if (e.target === fall) fall.remove();
+        });
+    }
+
+    setInterval(spawnNote, 800);
+    for (let i = 0; i < 10; i++) {
+        setTimeout(spawnNote, i * 1000);
+    }
+
+    // Mouse particle trail of small falling, fading notes
+    const trailContainer = document.getElementById("trailContainer");
+    let lastTrailTime = 0;
+    const TRAIL_THROTTLE_MS = 40;
+
+    function spawnTrailNote(x, y) {
+        const note = document.createElement("span");
+        note.className = "trail-note";
+        note.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
+
+        const jitterX = (Math.random() * 2 - 1) * 6;
+        const jitterY = (Math.random() * 2 - 1) * 6;
+        const tx = (Math.random() * 2 - 1) * 24;
+        const ty = 20 + Math.random() * 25;
+        const rot = (Math.random() * 2 - 1) * 40;
+        const duration = 0.6 + Math.random() * 0.6;
+        const size = 0.5 + Math.random() * 0.5;
+
+        note.style.left = x + jitterX + "px";
+        note.style.top = y + jitterY + "px";
+        note.style.fontSize = size + "rem";
+        note.style.setProperty("--tx", tx + "px");
+        note.style.setProperty("--ty", ty + "px");
+        note.style.setProperty("--rot", rot + "deg");
+        note.style.animationDuration = duration + "s";
+
+        trailContainer.appendChild(note);
+
+        note.addEventListener("animationend", () => note.remove());
+    }
+
+    window.addEventListener("mousemove", (e) => {
+        const now = performance.now();
+        if (now - lastTrailTime < TRAIL_THROTTLE_MS) return;
+        lastTrailTime = now;
+        spawnTrailNote(e.clientX, e.clientY);
+    });
+
+    // Color pickers for name, initials, and background
+    const root = document.documentElement;
+    const colorNaam = document.getElementById("colorNaam");
+    const colorInitiaal = document.getElementById("colorInitiaal");
+    const colorBg = document.getElementById("colorBg");
+
+    // Browsers restore the last-set value of <input type="color"> on reload,
+    // overriding the HTML `value` attribute. Force the real defaults back on
+    // every load so the pickers (and page colors) always start consistent.
+    const DEFAULT_COLORS = {
+        naam: "#333333",
+        initiaal: "#94422a",
+        bg: "#ffdab9",
+    };
+
+    colorNaam.value = DEFAULT_COLORS.naam;
+    colorInitiaal.value = DEFAULT_COLORS.initiaal;
+    colorBg.value = DEFAULT_COLORS.bg;
+    root.style.setProperty("--color-naam", DEFAULT_COLORS.naam);
+    root.style.setProperty("--color-initiaal", DEFAULT_COLORS.initiaal);
+    root.style.setProperty("--color-bg", DEFAULT_COLORS.bg);
+
+    colorNaam.addEventListener("input", () => {
+        root.classList.remove("color-transition"); // manual picking is instant
+        root.style.setProperty("--color-naam", colorNaam.value);
+    });
+    colorInitiaal.addEventListener("input", () => {
+        root.classList.remove("color-transition");
+        root.style.setProperty("--color-initiaal", colorInitiaal.value);
+    });
+    colorBg.addEventListener("input", () => {
+        root.classList.remove("color-transition");
+        root.style.setProperty("--color-bg", colorBg.value);
+    });
+
+    // Dice button: rolls through dice faces, then randomizes the 3 colors
+    const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const diceButton = document.getElementById("diceButton");
+    let diceRolling = false;
+
+    function randomColor() {
+        const value = Math.floor(Math.random() * 0xffffff);
+        return "#" + value.toString(16).padStart(6, "0");
+    }
+
+    function randomizeColors() {
+        root.classList.add("color-transition");
+
+        colorNaam.value = randomColor();
+        colorInitiaal.value = randomColor();
+        colorBg.value = randomColor();
+        root.style.setProperty("--color-naam", colorNaam.value);
+        root.style.setProperty("--color-initiaal", colorInitiaal.value);
+        root.style.setProperty("--color-bg", colorBg.value);
+
+        setTimeout(() => {
+            root.classList.remove("color-transition");
+        }, 850);
+    }
+
+    diceButton.addEventListener("click", () => {
+        if (diceRolling) return;
+        diceRolling = true;
+        diceButton.disabled = true;
+
+        const totalDuration = 300; // ms
+        const start = performance.now();
+        let delay = 30;
+
+        function rollStep() {
+            diceButton.textContent = DICE_FACES[Math.floor(Math.random() * DICE_FACES.length)];
+
+            const elapsed = performance.now() - start;
+            if (elapsed >= totalDuration) {
+                randomizeColors();
+                diceButton.disabled = false;
+                diceRolling = false;
+                return;
+            }
+
+            delay += 8; // slow down towards the end, like a dice coming to rest
+            setTimeout(rollStep, delay);
+        }
+
+        rollStep();
+    });
+
+    // Shattered glass effect on nav button click
+    const navButtons = document.querySelectorAll(".nav-button");
+
+    function shatterButton(button) {
+        if (button.classList.contains("shattering")) return;
+
+        const img = button.querySelector("img");
+        if (!img) return;
+
+        const rect = img.getBoundingClientRect();
+        const src = img.getAttribute("src");
+
+        button.classList.add("shattering");
+        button.disabled = true;
+
+        const shatterContainer = document.createElement("div");
+        shatterContainer.className = "shatter-container";
+        shatterContainer.style.left = rect.left + "px";
+        shatterContainer.style.top = rect.top + "px";
+        shatterContainer.style.width = rect.width + "px";
+        shatterContainer.style.height = rect.height + "px";
+
+        // Build a jittered grid of points, then split each cell into two
+        // randomly-oriented triangles. This produces an irregular, jagged
+        // break pattern instead of uniform squares.
+        const cols = 6;
+        const rows = 4;
+        const jitterAmount = 0.4;
+        const cellW = rect.width / cols;
+        const cellH = rect.height / rows;
+
+        const points = [];
+        for (let ry = 0; ry <= rows; ry++) {
+            const rowPoints = [];
+            for (let rx = 0; rx <= cols; rx++) {
+                let x = rx * cellW;
+                let y = ry * cellH;
+                if (rx > 0 && rx < cols) {
+                    x += (Math.random() * 2 - 1) * cellW * jitterAmount;
+                }
+                if (ry > 0 && ry < rows) {
+                    y += (Math.random() * 2 - 1) * cellH * jitterAmount;
+                }
+                rowPoints.push({ x: x, y: y });
+            }
+            points.push(rowPoints);
+        }
+
+        let maxDuration = 0;
+
+        function makeShard(tri) {
+            const xs = [tri[0].x, tri[1].x, tri[2].x];
+            const ys = [tri[0].y, tri[1].y, tri[2].y];
+            const minX = Math.min.apply(null, xs);
+            const maxX = Math.max.apply(null, xs);
+            const minY = Math.min.apply(null, ys);
+            const maxY = Math.max.apply(null, ys);
+            const w = Math.max(maxX - minX, 1);
+            const h = Math.max(maxY - minY, 1);
+
+            const piece = document.createElement("div");
+            piece.className = "shatter-piece";
+            piece.style.left = minX + "px";
+            piece.style.top = minY + "px";
+            piece.style.width = w + "px";
+            piece.style.height = h + "px";
+            piece.style.backgroundImage = 'url("' + src + '")';
+            piece.style.backgroundSize = rect.width + "px " + rect.height + "px";
+            piece.style.backgroundPosition = "-" + minX + "px -" + minY + "px";
+
+            const clip = tri
+                .map(function (p) {
+                    const px = ((p.x - minX) / w) * 100;
+                    const py = ((p.y - minY) / h) * 100;
+                    return px.toFixed(2) + "% " + py.toFixed(2) + "%";
+                })
+                .join(", ");
+            piece.style.clipPath = "polygon(" + clip + ")";
+
+            // Mostly fall straight down under gravity, with only a slight
+            // sideways scatter based on where the shard originally sat.
+            const shardCenterX = (minX + maxX) / 2 - rect.width / 2;
+            const tx = (shardCenterX / (rect.width / 2)) * 25 + (Math.random() * 2 - 1) * 25;
+            const ty = 180 + Math.random() * 220;
+            const rot = (Math.random() * 2 - 1) * 260;
+            const duration = 0.6 + Math.random() * 0.5;
+            const delay = Math.random() * 0.1;
+
+            piece.style.setProperty("--tx", tx + "px");
+            piece.style.setProperty("--ty", ty + "px");
+            piece.style.setProperty("--rot", rot + "deg");
+            piece.style.animationDuration = duration + "s";
+            piece.style.animationDelay = delay + "s";
+
+            maxDuration = Math.max(maxDuration, duration + delay);
+
+            shatterContainer.appendChild(piece);
+        }
+
+        for (let ry = 0; ry < rows; ry++) {
+            for (let rx = 0; rx < cols; rx++) {
+                const p00 = points[ry][rx];
+                const p10 = points[ry][rx + 1];
+                const p01 = points[ry + 1][rx];
+                const p11 = points[ry + 1][rx + 1];
+
+                if (Math.random() < 0.5) {
+                    makeShard([p00, p10, p11]);
+                    makeShard([p00, p11, p01]);
+                } else {
+                    makeShard([p00, p10, p01]);
+                    makeShard([p10, p11, p01]);
+                }
+            }
+        }
+
+        document.body.appendChild(shatterContainer);
+
+        setTimeout(
+            () => {
+                shatterContainer.remove();
+                button.classList.remove("shattering");
+                button.disabled = false;
+            },
+            maxDuration * 1000 + 50,
+        );
+    }
+
+    navButtons.forEach((button) => {
+        button.addEventListener("click", () => shatterButton(button));
+    });
+</script>
