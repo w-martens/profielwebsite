@@ -1,0 +1,14 @@
+{"skeleton":{"images":""},
+"bones":[{"name":"root"}],
+"slots":[
+	{"name":"player expanded","bone":"root","attachment":"player expanded"},
+	{"name":"player collapsed","bone":"root","attachment":"player collapsed"}
+],
+"skins":{
+	"default":{
+		"player expanded":{"player expanded":{"x":3415.5,"y":1502,"width":1447,"height":1750}},
+		"player collapsed":{"player collapsed":{"x":2045,"y":1483,"width":136,"height":1750}}
+	}
+},
+"animations":{"animation":{}}
+}

@@ -14,6 +14,7 @@
     </head>
     <body>
         <div class="bg-blobs"></div>
+        <div class="overlay-panel"></div>
         <div class="notes-container" id="notesContainer"></div>
         <div class="trail-container" id="trailContainer"></div>
         <div class="color-picker">
@@ -54,7 +55,113 @@
                 <img src="img/contact.png" alt="Contact" />
             </button>
         </div>
-    </body>
+    <div class="music-player minimized" id="musicPlayer">
+        <div class="music-player-inner">
+            <div class="player-tab" id="playerTab" title="Toggle player">
+                <span class="player-tab-arrow">▶</span>
+            </div>
+            <div class="player-panel" id="playerPanel">
+                <h2>Player</h2>
+                <div class="player-track-info" id="trackInfo">—</div>
+
+                <div class="player-controls">
+                    <button type="button" class="player-btn" id="prevBtn" title="Previous">⏮</button>
+                    <button type="button" class="player-btn" id="playBtn" title="Play">▶</button>
+                    <button type="button" class="player-btn" id="stopBtn" title="Stop">⏹</button>
+                    <button type="button" class="player-btn" id="nextBtn" title="Next">⏭</button>
+                </div>
+
+                <div class="player-progress">
+                    <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" />
+                    <div class="player-time">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+
+                <div class="player-panel-dials">
+                    <div class="mini-dial">
+                        <div class="dial-knob big" id="volPanelKnob">
+                            <div class="dial-indicator"></div>
+                            <div class="dial-dot bl"></div>
+                        </div>
+                        <span class="dial-label">Volume</span>
+                        <span class="dial-value" id="volPanelVal">80</span>
+                    </div>
+                    <div class="mini-dial">
+                        <div class="dial-knob big" id="spdPanelKnob">
+                            <div class="dial-indicator"></div>
+                            <div class="dial-dot top"></div>
+                        </div>
+                        <span class="dial-label">Speed</span>
+                        <span class="dial-value" id="spdPanelVal">1.0x</span>
+                    </div>
+                </div>
+
+                <button type="button" class="player-eq-toggle" id="eqToggle">▼ EQ</button>
+                <div class="player-eq-body collapsed" id="eqBody">
+                    <div class="player-eq-grid" id="eqGrid">
+                        <div class="eq-band">
+                            <label>60<br>Hz</label>
+                            <input type="range" class="eq-slider" data-band="0" min="-12" max="12" value="0" step="0.5" />
+                            <span class="eq-band-value" id="eqVal0">0</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>250<br>Hz</label>
+                            <input type="range" class="eq-slider" data-band="1" min="-12" max="12" value="0" step="0.5" />
+                            <span class="eq-band-value" id="eqVal1">0</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>1k<br>Hz</label>
+                            <input type="range" class="eq-slider" data-band="2" min="-12" max="12" value="0" step="0.5" />
+                            <span class="eq-band-value" id="eqVal2">0</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>4k<br>Hz</label>
+                            <input type="range" class="eq-slider" data-band="3" min="-12" max="12" value="0" step="0.5" />
+                            <span class="eq-band-value" id="eqVal3">0</span>
+                        </div>
+                        <div class="eq-band">
+                            <label>12k<br>Hz</label>
+                            <input type="range" class="eq-slider" data-band="4" min="-12" max="12" value="0" step="0.5" />
+                            <span class="eq-band-value" id="eqVal4">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="player-tracklist">
+                    <h3>Track List</h3>
+                    <ul id="trackList"></ul>
+                </div>
+            </div>
+            <div class="player-mini" id="playerMini">
+                <div class="mini-top">
+                    <button type="button" class="mini-play-btn" id="miniPlayBtn">▶</button>
+                    <div class="mini-track-wrap">
+                        <span class="player-mini-text" id="miniTrackText">—</span>
+                    </div>
+                    <span class="mini-time" id="miniTime">0:00</span>
+                </div>
+                <div class="mini-dials">
+                    <div class="mini-dial">
+                        <div class="dial-knob" id="volKnob">
+                            <div class="dial-indicator"></div>
+                            <div class="dial-dot bl"></div>
+                        </div>
+                        <span class="dial-value" id="volDialVal">80</span>
+                    </div>
+                    <div class="mini-dial">
+                        <div class="dial-knob" id="spdKnob">
+                            <div class="dial-indicator"></div>
+                            <div class="dial-dot top"></div>
+                        </div>
+                        <span class="dial-value" id="spdDialVal">1.0x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
 <script>
     const img = document.querySelector(".profile-pic");
@@ -308,6 +415,7 @@
         }
 
         let maxDuration = 0;
+        let shardId = 0;
 
         function makeShard(tri) {
             const xs = [tri[0].x, tri[1].x, tri[2].x];
@@ -318,28 +426,40 @@
             const maxY = Math.max.apply(null, ys);
             const w = Math.max(maxX - minX, 1);
             const h = Math.max(maxY - minY, 1);
+            const id = "shard-" + shardId++;
 
-            const piece = document.createElement("div");
-            piece.className = "shatter-piece";
-            piece.style.left = minX + "px";
-            piece.style.top = minY + "px";
-            piece.style.width = w + "px";
-            piece.style.height = h + "px";
-            piece.style.backgroundImage = 'url("' + src + '")';
-            piece.style.backgroundSize = rect.width + "px " + rect.height + "px";
-            piece.style.backgroundPosition = "-" + minX + "px -" + minY + "px";
+            const ns = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(ns, "svg");
+            svg.setAttribute("shape-rendering", "crispEdges");
+            svg.setAttribute("image-rendering", "pixelated");
+            svg.style.position = "absolute";
+            svg.style.left = minX + "px";
+            svg.style.top = minY + "px";
+            svg.style.width = w + "px";
+            svg.style.height = h + "px";
+            svg.style.overflow = "hidden";
+            svg.style.pointerEvents = "none";
 
-            const clip = tri
-                .map(function (p) {
-                    const px = ((p.x - minX) / w) * 100;
-                    const py = ((p.y - minY) / h) * 100;
-                    return px.toFixed(2) + "% " + py.toFixed(2) + "%";
-                })
-                .join(", ");
-            piece.style.clipPath = "polygon(" + clip + ")";
+            const defs = document.createElementNS(ns, "defs");
+            const clipPath = document.createElementNS(ns, "clipPath");
+            clipPath.setAttribute("id", id);
+            const poly = document.createElementNS(ns, "polygon");
+            poly.setAttribute("shape-rendering", "crispEdges");
+            const pts = tri.map(p => (p.x - minX) + "," + (p.y - minY)).join(" ");
+            poly.setAttribute("points", pts);
+            clipPath.appendChild(poly);
+            defs.appendChild(clipPath);
+            svg.appendChild(defs);
 
-            // Mostly fall straight down under gravity, with only a slight
-            // sideways scatter based on where the shard originally sat.
+            const img = document.createElementNS(ns, "image");
+            img.setAttribute("href", src);
+            img.setAttribute("x", -minX);
+            img.setAttribute("y", -minY);
+            img.setAttribute("width", rect.width);
+            img.setAttribute("height", rect.height);
+            img.setAttribute("clip-path", "url(#" + id + ")");
+            svg.appendChild(img);
+
             const shardCenterX = (minX + maxX) / 2 - rect.width / 2;
             const tx = (shardCenterX / (rect.width / 2)) * 25 + (Math.random() * 2 - 1) * 25;
             const ty = 180 + Math.random() * 220;
@@ -347,15 +467,14 @@
             const duration = 0.6 + Math.random() * 0.5;
             const delay = Math.random() * 0.1;
 
-            piece.style.setProperty("--tx", tx + "px");
-            piece.style.setProperty("--ty", ty + "px");
-            piece.style.setProperty("--rot", rot + "deg");
-            piece.style.animationDuration = duration + "s";
-            piece.style.animationDelay = delay + "s";
+            svg.style.setProperty("--tx", tx + "px");
+            svg.style.setProperty("--ty", ty + "px");
+            svg.style.setProperty("--rot", rot + "deg");
+            svg.style.animation = "shatter-fly " + duration + "s " + delay + "s forwards";
 
             maxDuration = Math.max(maxDuration, duration + delay);
 
-            shatterContainer.appendChild(piece);
+            shatterContainer.appendChild(svg);
         }
 
         for (let ry = 0; ry < rows; ry++) {
@@ -414,4 +533,258 @@
         clearTimeout(alignResizeTimer);
         alignResizeTimer = setTimeout(alignNavButtonsWithName, 120);
     });
+
+    // ponytail: Music player — HTML Audio + Web Audio (EQ), radial dials, minimize
+    (function() {
+        var TRACKS = [
+            { name: 'Chyeah', file: 'src/chyeah.mp3' },
+            { name: 'Medieval Cloak 4', file: 'src/medieval%20cloak4.mp3' },
+            { name: "Serguhhh's Mind", file: 'src/serguhhhs%20mind.mp3' },
+            { name: 'Varkentje', file: 'src/varkentje.mp3' },
+            { name: 'Xmy3', file: 'src/xmy3.mp3' },
+        ];
+
+        var ac, gain, filters, mediaSrc, trackIdx, started, endedNat;
+        var audio = new Audio();
+        audio.preload = 'auto';
+        // preservesPitch=false gives chipmunk/slowed speed+pitch effect
+        audio.preservesPitch = false;
+
+        var eqT = ['lowshelf','peaking','peaking','peaking','highshelf'];
+        var eqF = [60,250,1000,4000,12000];
+
+        var $ = function(id) { return document.getElementById(id); };
+        var playBtn=$('playBtn'),prevBtn=$('prevBtn'),nextBtn=$('nextBtn'),
+            stopBtn=$('stopBtn'),prog=$('progressBar'),curT=$('currentTime'),
+            totT=$('totalTime'),info=$('trackInfo'),player=$('musicPlayer'),
+            tab=$('playerTab'),eqTog=$('eqToggle'),eqBody=$('eqBody'),miniTxt=$('miniTrackText'),
+            miniPlay=$('miniPlayBtn'),miniTime=$('miniTime'),
+            volKnob=$('volKnob'),spdKnob=$('spdKnob'),volDVal=$('volDialVal'),spdDVal=$('spdDialVal'),
+            volPanelKnob=$('volPanelKnob'),spdPanelKnob=$('spdPanelKnob'),volPanelVal=$('volPanelVal'),spdPanelVal=$('spdPanelVal');
+
+        function init() {
+            if (!ac) {
+                ac = new (window.AudioContext||window.webkitAudioContext)();
+                filters = eqT.map(function(t,i) {
+                    var f = ac.createBiquadFilter();
+                    f.type = t; f.frequency.value = eqF[i]; f.gain.value = 0; f.Q.value = 1;
+                    return f;
+                });
+                gain = ac.createGain();
+                gain.gain.value = 0.8;
+            }
+            if (!mediaSrc && audio.src && audio.src !== '') {
+                mediaSrc = ac.createMediaElementSource(audio);
+                mediaSrc.connect(filters[0]);
+                for (var fi = 0; fi < filters.length - 1; fi++) filters[fi].connect(filters[fi+1]);
+                filters[filters.length-1].connect(gain);
+                gain.connect(ac.destination);
+            }
+            if (ac.state === 'suspended') ac.resume();
+        }
+
+        function fmt(s) {
+            return (isFinite(s) && s >= 0)
+                ? Math.floor(s/60)+':'+(Math.floor(s%60)+'').padStart(2,'0')
+                : '0:00';
+        }
+
+        function updateUI() {
+            var a = audio;
+            if (a.duration && isFinite(a.duration)) {
+                totT.textContent = fmt(a.duration);
+                prog.max = a.duration;
+            }
+            if (!started) prog.value = 0;
+            var t = a.currentTime || 0;
+            curT.textContent = fmt(t);
+            miniTime.textContent = fmt(t);
+            prog.value = t;
+        }
+
+        function load(i) {
+            if (i < 0 || i >= TRACKS.length) return;
+            trackIdx = i; init();
+            audio.pause();
+            audio.src = TRACKS[i].file;
+            started = false; endedNat = false;
+            info.textContent = TRACKS[i].name;
+            miniTxt.textContent = '\u266B ' + TRACKS[i].name;
+            totT.textContent = '0:00'; curT.textContent = '0:00'; prog.value = 0;
+            miniTime.textContent = '0:00';
+            audio.load();
+            setPlayBtn(true);
+            highlight();
+        }
+
+        function togglePlay() {
+            init();
+            if (audio.paused) {
+                if (!started && audio.readyState < 2 && audio.src) {
+                    audio.play().then(function() {
+                        started = true; setPlayBtn(false);
+                        updateUI();
+                    }).catch(function(e) { console.error(e); });
+                } else if (audio.src) {
+                    audio.play();
+                    started = true; setPlayBtn(false);
+                } else if (TRACKS.length) {
+                    load(0);
+                }
+            } else {
+                audio.pause(); setPlayBtn(true);
+            }
+        }
+
+        function setPlayBtn(paused) {
+            var c = paused ? '\u25B6' : '\u23F8';
+            playBtn.textContent = c;
+            miniPlay.textContent = c;
+        }
+
+        function highlight() {
+            var items = document.querySelectorAll('#trackList li');
+            items.forEach(function(li, i) { li.classList.toggle('active', i === trackIdx); });
+        }
+
+        function nextTrack() { load((trackIdx+1)%TRACKS.length); }
+        function prevTrack() { if (trackIdx>=0) load((trackIdx-1+TRACKS.length)%TRACKS.length); }
+
+        // Audio events
+        audio.addEventListener('loadedmetadata', function() {
+            if (audio.duration && isFinite(audio.duration)) {
+                totT.textContent = fmt(audio.duration);
+                prog.max = audio.duration;
+            }
+        });
+
+        audio.addEventListener('timeupdate', function() {
+            if (started) updateUI();
+        });
+
+        audio.addEventListener('play', function() { setPlayBtn(false); });
+        audio.addEventListener('pause', function() { setPlayBtn(true); });
+        audio.addEventListener('ended', function() { endedNat = true; setPlayBtn(true); nextTrack(); });
+
+        // Track list
+        TRACKS.forEach(function(t,i) {
+            var li = document.createElement('li');
+            li.textContent = t.name;
+            li.addEventListener('click', function() {
+                init();
+                if (i === trackIdx && audio.src) {
+                    audio.currentTime = 0;
+                    if (audio.paused) togglePlay();
+                } else { load(i); }
+            });
+            $('trackList').appendChild(li);
+        });
+
+        // Panel controls
+        playBtn.addEventListener('click', togglePlay);
+        miniPlay.addEventListener('click', togglePlay);
+        prevBtn.addEventListener('click', function() { init(); prevTrack(); });
+        nextBtn.addEventListener('click', function() { init(); nextTrack(); });
+        stopBtn.addEventListener('click', function() {
+            audio.pause(); audio.currentTime = 0; started = false;
+            setPlayBtn(true); totT.textContent='0:00'; curT.textContent='0:00';
+            prog.value=0; miniTime.textContent='0:00'; miniTxt.textContent='\u2014';
+        });
+
+        // Progress seek
+        prog.addEventListener('input', function() {
+            if (!audio.src || !audio.duration) return;
+            audio.currentTime = prog.value;
+            curT.textContent = fmt(audio.currentTime);
+            miniTime.textContent = fmt(audio.currentTime);
+        });
+
+        // Helper: update all volume dials (value 0-100)
+        function setVolDial(v) {
+            audio.volume = v / 100;
+            var rot = 225 + (v / 100 * 270);
+            volKnob.style.setProperty('--dial-rotation', rot + 'deg');
+            volPanelKnob.style.setProperty('--dial-rotation', rot + 'deg');
+            volDVal.textContent = Math.round(v);
+            volPanelVal.textContent = Math.round(v);
+        }
+
+        // Helper: update all speed dials (value 0.5-2.0)
+        function setSpdDial(v) {
+            audio.playbackRate = v;
+            var norm = (Math.log2(v) + 1) / 2;
+            var rot = 225 + norm * 270;
+            spdKnob.style.setProperty('--dial-rotation', rot + 'deg');
+            spdPanelKnob.style.setProperty('--dial-rotation', rot + 'deg');
+            var txt = v.toFixed(1) + 'x';
+            spdDVal.textContent = txt;
+            spdPanelVal.textContent = txt;
+        }
+
+        // Shared drag logic for any knob element
+        function makeDial(el, getVal, setVal, min, max, scale) {
+            var dragging = false, lastY, startVal;
+            el.addEventListener('mousedown', function(e) {
+                e.preventDefault(); dragging = true; lastY = e.clientY;
+                startVal = getVal();
+                el.classList.add('dragging'); document.body.style.cursor = 'none';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+            function onMove(e) {
+                if (!dragging) return;
+                var v = Math.max(min, Math.min(max, startVal + (lastY - e.clientY) * scale));
+                setVal(v);
+            }
+            function onUp() { dragging = false; el.classList.remove('dragging'); document.body.style.cursor = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+        }
+
+        // Wire all 4 knobs to the same volume state
+        var volKnobs = [volKnob, volPanelKnob];
+        volKnobs.forEach(function(el) {
+            makeDial(el,
+                function() { return audio.volume * 100; },
+                function(v) { setVolDial(v); },
+                0, 100, 0.5
+            );
+            el.addEventListener('dblclick', function() { setVolDial(80); });
+        });
+
+        // Wire all 4 knobs to the same speed state
+        var spdKnobs = [spdKnob, spdPanelKnob];
+        spdKnobs.forEach(function(el) {
+            makeDial(el,
+                function() { return audio.playbackRate; },
+                function(v) { setSpdDial(v); },
+                0.5, 2.0, 0.01
+            );
+            el.addEventListener('dblclick', function() { setSpdDial(1.0); });
+        });
+
+        // Init dial positions
+        setVolDial(80);
+        setSpdDial(1.0);
+
+        // EQ sliders
+        document.querySelectorAll('.eq-slider').forEach(function(s) {
+            s.addEventListener('input', function() {
+                var b = +s.dataset.band, v = +s.value;
+                $('eqVal'+b).textContent = (v > 0 ? '+' : '') + v;
+                if (filters && filters[b]) filters[b].gain.value = v;
+            });
+            s.addEventListener('dblclick', function() {
+                s.value = 0;
+                s.dispatchEvent(new Event('input'));
+            });
+        });
+
+        eqTog.addEventListener('click', function() {
+            eqBody.classList.toggle('collapsed');
+            eqTog.textContent = eqBody.classList.contains('collapsed') ? '\u25BC EQ' : '\u25B2 EQ';
+        });
+
+        tab.addEventListener('click', function() { player.classList.toggle('minimized'); });
+        player.classList.add('minimized');
+    })();
 </script>
+

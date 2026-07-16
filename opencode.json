@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@dietrichgebert/ponytail"],
+  "model": "deepseek/deepseek-v4-pro",
+  "autoupdate": true,
+  "tools": {
+    "bash": true,
+    "edit": true,
+    "write": true,
+    "read": true
+  }
+}
